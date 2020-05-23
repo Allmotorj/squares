@@ -1,0 +1,17 @@
+.Square {
+   
+    display: grid;
+    /* grid-template-columns: repeat(10, 1fr); */
+    border: 2px dotted red;
+    margin: 2px;
+    padding: 1px;
+    width: 90%;
+    padding-bottom: 65%;
+    position: relative;
+    
+  }
+  
+  .flex-h {
+    display: flex;
+    justify-content: center;
+  }

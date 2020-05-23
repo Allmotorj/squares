@@ -1,0 +1,14 @@
+.Board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    border: 2px dotted red;
+    margin: 2px;
+    padding: 2px;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .flex-h {
+    display: flex;
+    justify-content: center;
+  }
