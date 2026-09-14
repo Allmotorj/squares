@@ -1,0 +1,39 @@
+name: Full npm security audit
+
+on:
+  push:
+    branches:
+      - security/full-npm-audit-2026-09
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Audit current lockfile
+        shell: python
+        run: |
+          import json, subprocess
+          from pathlib import Path
+          p=subprocess.run(['npm','audit','--json','--package-lock-only'],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=180)
+          data=json.loads(p.stdout) if p.stdout.strip() else {}
+          vulns=data.get('vulnerabilities') or {}
+          lines=[f'vulnerability_entries={len(vulns)}']
+          for name,meta in sorted(vulns.items()):
+              fix=meta.get('fixAvailable') if isinstance(meta,dict) else None
+              lines.append(f"{name}\t{meta.get('severity')}\t{meta.get('range')}\t{json.dumps(fix,sort_keys=True) if isinstance(fix,(dict,list)) else fix}")
+          Path('.security-full-npm-audit.txt').write_text('\n'.join(lines)+'\n')
+      - name: Commit audit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .security-full-npm-audit.txt
+          git commit -m "chore: record full npm security audit" || exit 0
+          git push
